@@ -1,0 +1,12 @@
+BasedOnStyle: LLVM
+AlignConsecutiveAssignments:
+  Enabled: true
+  AlignCompound: true
+AlignConsecutiveDeclarations: true
+AllowShortFunctionsOnASingleLine: false
+ColumnLimit: 100
+IndentAccessModifiers: true
+IndentCaseLabels: true
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
