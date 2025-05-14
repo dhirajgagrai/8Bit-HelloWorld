@@ -3,6 +3,14 @@
 CHIP-8 is a language interpreter used on the RCA TELMAC-1800 and COSMAC VIP computers in 1977.
 This repo contains an implementation of CHIP-8 emulator which marks the rite of passage for my journey towards systems programming.
 
+## Test Goals
+
+- [x] Corax+
+- [ ] Flags
+- [ ] Quirks
+- [ ] Keypad
+- [ ] Scrolling
+
 ## Compile
 
 Configure:
