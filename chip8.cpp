@@ -98,46 +98,59 @@ int Chip8::emulateCycle() {
                     pc    += 2;
                     break;
                 case 0x0004:
-                    if (V[ix] > 0xFF - V[iy]) {
-                        V[0xF] = 1;
+                    if (V[ix] > (0xFF - V[iy])) {
+                        V[ix]  += V[iy];
+                        V[0xF]  = 1;
                     } else {
-                        V[0xF] = 0;
+                        V[ix]  += V[iy];
+                        V[0xF]  = 0;
                     }
-                    V[ix] += V[iy];
-                    pc    += 2;
+                    pc += 2;
                     break;
                 case 0x0005:
                     if (V[ix] >= V[iy]) {
-                        V[0xF] = 1;
+                        V[ix]  -= V[iy];
+                        V[0xF]  = 1;
                     } else {
-                        V[0xF] = 0;
+                        V[ix]  -= V[iy];
+                        V[0xF]  = 0;
                     }
-                    V[ix] -= V[iy];
-                    pc    += 2;
+                    pc += 2;
                     break;
-                case 0x0006: {
-                    V[0xF]   = V[iy] & 0x1;
-                    V[iy]  >>= 1;
-                    V[ix]    = V[iy];
-                    pc      += 2;
+                case 0x0006:
+                    if (V[iy] & 0x1) {
+                        V[iy]  >>= 1;
+                        V[ix]    = V[iy];
+                        V[0xF]   = 1;
+                    } else {
+                        V[iy]  >>= 1;
+                        V[ix]    = V[iy];
+                        V[0xF]   = 0;
+                    }
+                    pc += 2;
                     break;
-                }
                 case 0x0007:
                     if (V[ix] <= V[iy]) {
+                        V[ix]  = V[iy] - V[ix];
                         V[0xF] = 1;
                     } else {
+                        V[ix]  = V[iy] - V[ix];
                         V[0xF] = 0;
                     }
-                    V[ix]  = V[iy] - V[ix];
-                    pc    += 2;
+                    pc += 2;
                     break;
-                case 0x000E: {
-                    V[0xF]   = V[iy] >> 7;
-                    V[iy]  <<= 1;
-                    V[ix]    = V[iy];
-                    pc      += 2;
+                case 0x000E:
+                    if (V[iy] >> 7) {
+                        V[iy]  <<= 1;
+                        V[ix]    = V[iy];
+                        V[0xF]   = 1;
+                    } else {
+                        V[iy]  <<= 1;
+                        V[ix]    = V[iy];
+                        V[0xF]   = 0;
+                    }
+                    pc += 2;
                     break;
-                }
                 default:
                     printf("Failed register operation: 0x%X\n", opcode);
                     return -1;
