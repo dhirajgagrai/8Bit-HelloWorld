@@ -6,7 +6,7 @@ This repo contains an implementation of CHIP-8 emulator which marks the rite of 
 ## Test Goals
 
 - [x] Corax+
-- [ ] Flags
+- [x] Flags
 - [ ] Quirks
 - [ ] Keypad
 - [ ] Scrolling
