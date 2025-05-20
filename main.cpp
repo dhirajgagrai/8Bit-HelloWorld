@@ -1,5 +1,6 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_init.h"
+#include "SDL3/SDL_keycode.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_video.h"
 #include "chip8.h"
@@ -9,6 +10,8 @@
 #include <iostream>
 
 using namespace std;
+
+Chip8 chip8;
 
 // TODO: rewrite this function because it was generated with chatgpt
 int setupGraphics(SDL_Window *&window, SDL_Renderer *&renderer) {
@@ -59,14 +62,139 @@ int drawGraphics(const unsigned char *gfx, SDL_Renderer *&renderer) {
 
     SDL_RenderPresent(renderer);
 
+    chip8.drawFlag = false;
+
+    return 0;
+}
+
+int handleInput(SDL_Event event, bool *running) {
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_EVENT_QUIT:
+                *running = false;
+                break;
+            case SDL_EVENT_KEY_UP:
+                switch (event.key.key) {
+                    case SDLK_ESCAPE:
+                        *running = false;
+                        break;
+                    case SDLK_1:
+                        chip8.unsetKey(1);
+                        break;
+                    case SDLK_2:
+                        chip8.unsetKey(2);
+                        break;
+                    case SDLK_3:
+                        chip8.unsetKey(3);
+                        break;
+                    case SDLK_4:
+                        chip8.unsetKey(0xC);
+                        break;
+                    case SDLK_Q:
+                        chip8.unsetKey(4);
+                        break;
+                    case SDLK_W:
+                        chip8.unsetKey(5);
+                        break;
+                    case SDLK_E:
+                        chip8.unsetKey(6);
+                        break;
+                    case SDLK_R:
+                        chip8.unsetKey(0xD);
+                        break;
+                    case SDLK_A:
+                        chip8.unsetKey(7);
+                        break;
+                    case SDLK_S:
+                        chip8.unsetKey(8);
+                        break;
+                    case SDLK_D:
+                        chip8.unsetKey(9);
+                        break;
+                    case SDLK_F:
+                        chip8.unsetKey(0xE);
+                        break;
+                    case SDLK_Z:
+                        chip8.unsetKey(0xA);
+                        break;
+                    case SDLK_X:
+                        chip8.unsetKey(0);
+                        break;
+                    case SDLK_C:
+                        chip8.unsetKey(0xB);
+                        break;
+                    case SDLK_V:
+                        chip8.unsetKey(0xF);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case SDL_EVENT_KEY_DOWN: {
+                switch (event.key.key) {
+                    case SDLK_1:
+                        chip8.setKey(1);
+                        break;
+                    case SDLK_2:
+                        chip8.setKey(2);
+                        break;
+                    case SDLK_3:
+                        chip8.setKey(3);
+                        break;
+                    case SDLK_4:
+                        chip8.setKey(0xC);
+                        break;
+                    case SDLK_Q:
+                        chip8.setKey(4);
+                        break;
+                    case SDLK_W:
+                        chip8.setKey(5);
+                        break;
+                    case SDLK_E:
+                        chip8.setKey(6);
+                        break;
+                    case SDLK_R:
+                        chip8.setKey(0xD);
+                        break;
+                    case SDLK_A:
+                        chip8.setKey(7);
+                        break;
+                    case SDLK_S:
+                        chip8.setKey(8);
+                        break;
+                    case SDLK_D:
+                        chip8.setKey(9);
+                        break;
+                    case SDLK_F:
+                        chip8.setKey(0xE);
+                        break;
+                    case SDLK_Z:
+                        chip8.setKey(0xA);
+                        break;
+                    case SDLK_X:
+                        chip8.setKey(0);
+                        break;
+                    case SDLK_C:
+                        chip8.setKey(0xB);
+                        break;
+                    case SDLK_V:
+                        chip8.setKey(0xF);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            }
+        }
+    }
+
     return 0;
 }
 
 int main(int argc, char **argv) {
-    Chip8 chip8;
 
-    const double CYCLE_INTERVAL_MS = 1000.0 / 700.0;
     const double TIMER_INTERVAL_MS = 1000.0 / 60.0;
+    const int    CYCLES_PER_FRAME  = 10;
 
     bool running = true;
 
@@ -103,28 +231,15 @@ int main(int argc, char **argv) {
             timer_accumulator -= TIMER_INTERVAL_MS;
         }
 
-        if (cycle_accumulator >= CYCLE_INTERVAL_MS) {
+        for (int i = 0; i < CYCLES_PER_FRAME; i++) {
             chip8.emulateCycle();
-            cycle_accumulator -= CYCLE_INTERVAL_MS;
-            if (chip8.drawFlag) {
-                drawGraphics(chip8.getGfx(), renderer);
-                chip8.drawFlag = false;
-            }
         }
 
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-                case SDL_EVENT_QUIT:
-                    running = false;
-                    break;
-                case SDL_EVENT_KEY_UP:
-                    switch (event.key.key) {
-                        case SDLK_ESCAPE:
-                            running = false;
-                            break;
-                    }
-            }
+        if (chip8.drawFlag) {
+            drawGraphics(chip8.getGfx(), renderer);
         }
+
+        handleInput(event, &running);
 
         if (!running) {
             break;

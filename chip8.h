@@ -41,6 +41,8 @@ class Chip8 {
         int            loadGame(char *filename);
         int            emulateCycle();
         int            tickTimers();
+        int            setKey(unsigned char key_val);
+        int            unsetKey(unsigned char key_val);
         unsigned char *getGfx();
 
         bool drawFlag;

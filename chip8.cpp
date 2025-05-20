@@ -11,6 +11,7 @@ using namespace std;
 random_device              rd;
 mt19937                    gen;
 uniform_int_distribution<> distr(0, 255);
+unsigned char              keyUp[16];
 
 unsigned short shiftHex(unsigned short op, int pos) {
     return op >> 4 * pos;
@@ -36,6 +37,8 @@ int Chip8::initialize() {
     memset(stack, 0, 2 * 16);
     memset(V, 0, 16);
     memset(memory, 0, 4096);
+    memset(key, 0, 16);
+    memset(keyUp, 0, 16);
 
     // fontset
     for (int i = 0; i < CHIP8_FONT_SIZE; ++i) {
@@ -243,8 +246,16 @@ int Chip8::emulateCycle() {
                     pc          += 2;
                     break;
 
-                // TODO: key press operation
+                // key release operation
                 case 0x000A:
+                    for (int i = 0; i < 16; i++) {
+                        if (keyUp[i]) {
+                            V[getRegX(opcode)]  = i;
+                            keyUp[i]            = 0;
+                            pc                 += 2;
+                            break;
+                        }
+                    }
                     break;
 
                 // I register operation
@@ -289,8 +300,26 @@ int Chip8::emulateCycle() {
             }
         }
 
-        // TODO: keyboard input
+        // keyboard input
         case 0xE000: {
+            switch (opcode & 0x00FF) {
+                case 0x009E:
+                    if (key[V[getRegX(opcode)]]) {
+                        keyUp[V[getRegX(opcode)]]  = 0;
+                        pc                        += 4;
+                    } else {
+                        pc += 2;
+                    }
+                    break;
+                case 0x00A1:
+                    if (!key[V[getRegX(opcode)]]) {
+                        keyUp[V[getRegX(opcode)]]  = 0;
+                        pc                        += 4;
+                    } else {
+                        pc += 2;
+                    }
+                    break;
+            }
             break;
         }
 
@@ -343,6 +372,19 @@ int Chip8::tickTimers() {
     }
 
     return 0;
+}
+
+int Chip8::unsetKey(unsigned char val) {
+    if (key[val]) {
+        key[val]   = 0;
+        keyUp[val] = 1;
+    }
+    return 1;
+}
+
+int Chip8::setKey(unsigned char val) {
+    key[val] = 1;
+    return 1;
 }
 
 unsigned char *Chip8::getGfx() {
