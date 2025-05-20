@@ -9,7 +9,6 @@ This repo contains an implementation of CHIP-8 emulator which marks the rite of 
 - [x] Flags
 - [ ] Quirks
 - [x] Keypad
-- [ ] Scrolling
 
 ## Compile
 
