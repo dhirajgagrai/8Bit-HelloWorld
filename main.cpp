@@ -42,9 +42,9 @@ int drawGraphics(const unsigned char *gfx, SDL_Renderer *&renderer) {
     const int VIDEO_HEIGHT = 32;
     const int PIXEL_SCALE  = 10;
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 155, 103, 0, 255);
     SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 204, 2, 255);
 
     for (int y = 0; y < VIDEO_HEIGHT; ++y) {
         for (int x = 0; x < VIDEO_WIDTH; ++x) {
@@ -98,12 +98,12 @@ int main(int argc, char **argv) {
         cycle_accumulator += elapsed;
         timer_accumulator += elapsed;
 
-        while (timer_accumulator >= TIMER_INTERVAL_MS) {
+        if (timer_accumulator >= TIMER_INTERVAL_MS) {
             chip8.tickTimers();
             timer_accumulator -= TIMER_INTERVAL_MS;
         }
 
-        while (cycle_accumulator >= CYCLE_INTERVAL_MS) {
+        if (cycle_accumulator >= CYCLE_INTERVAL_MS) {
             chip8.emulateCycle();
             cycle_accumulator -= CYCLE_INTERVAL_MS;
             if (chip8.drawFlag) {
@@ -113,10 +113,16 @@ int main(int argc, char **argv) {
         }
 
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
-                running = false;
-            } else if (event.type == SDL_EVENT_KEY_UP && event.key.key == SDLK_ESCAPE) {
-                running = false;
+            switch (event.type) {
+                case SDL_EVENT_QUIT:
+                    running = false;
+                    break;
+                case SDL_EVENT_KEY_UP:
+                    switch (event.key.key) {
+                        case SDLK_ESCAPE:
+                            running = false;
+                            break;
+                    }
             }
         }
 

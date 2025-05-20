@@ -175,7 +175,8 @@ int Chip8::emulateCycle() {
                 // clears the screen
                 case 0x00E0:
                     memset(gfx, 0, 64 * 32);
-                    pc += 2;
+                    drawFlag  = true;
+                    pc       += 2;
                     break;
 
                 // return from subroutine
@@ -199,27 +200,31 @@ int Chip8::emulateCycle() {
         // conditional branching
         case 0x3000:
             if (V[getRegX(opcode)] == (opcode & 0x00FF)) {
+                pc += 4;
+            } else {
                 pc += 2;
             }
-            pc += 2;
             break;
         case 0x4000:
             if (V[getRegX(opcode)] != (opcode & 0x00FF)) {
+                pc += 4;
+            } else {
                 pc += 2;
             }
-            pc += 2;
             break;
         case 0x5000:
             if (V[getRegX(opcode)] == V[getRegY(opcode)]) {
+                pc += 4;
+            } else {
                 pc += 2;
             }
-            pc += 2;
             break;
         case 0x9000:
             if (V[getRegX(opcode)] != V[getRegY(opcode)]) {
+                pc += 4;
+            } else {
                 pc += 2;
             }
-            pc += 2;
             break;
 
         case 0xF000: {
@@ -258,7 +263,7 @@ int Chip8::emulateCycle() {
                 case 0x0033:
                     memory[I]      = V[getRegX(opcode)] / 100;
                     memory[I + 1]  = V[getRegX(opcode)] / 10 % 10;
-                    memory[I + 2]  = V[getRegX(opcode)] % 100 % 10;
+                    memory[I + 2]  = V[getRegX(opcode)] % 10;
                     pc            += 2;
                     break;
 
